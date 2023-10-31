@@ -4,10 +4,11 @@ import dotenv from "dotenv";
 
 import connectDB from "./db/dbCoonect.js";
 
-// get the port from the env or is 5050
-const port = process.env.PORT || 5050;
 // connect fron the env file.
 dotenv.config();
+// get the port from the env or is 5050
+const port = process.env.PORT || 5050;
+
 
 
 const app = express();
