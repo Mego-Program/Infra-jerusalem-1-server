@@ -2,11 +2,7 @@ import express from "express";
 import cors from "cors";
 const router = express.Router();
 import { check, validationResult } from "express-validator";
-import {
-  addToDB,
-  inClodsDBByUser,
-  inClodsDBByEmail,
-} from "../db/functionToDB.js";
+import { addToDB, allDB, getOneUser } from "../db/functionToDB.js";
 import bcrypt from "bcrypt";
 import JWT from "jsonwebtoken";
 // to use the env file.
@@ -17,7 +13,8 @@ router.post("/login", async (req, res) => {
   // get the user name and the password.
   const { email, password } = req.body;
   // check if the user is in the DB.
-  let user = true;
+  let user = await getOneUser({ username: username });
+
   // if it's empty it's send a erorr.
   if (!user) {
     return res.status(400).json({
@@ -73,7 +70,8 @@ router.post(
     // get the argomants.
     const { firstName, lastName, email, username, password } = req.body;
     //check if there is a user like this.
-    const userExists = inClodsDBByEmail({ email: email });
+    const userExists = await getOneUser({ email: email });
+    console.log(userExists);
     // if there is a user like this send erorr.
     if (userExists) {
       return res.status(400).json({
@@ -95,10 +93,9 @@ router.post(
         expiresIn: 3600000,
       }
     );
-    console.log(token);
     // add to the DB.
+    const resultAddUser = await addToDB({
 
-    addToDB({
       firstName: firstName,
       lastName: lastName,
       email: email,
@@ -106,6 +103,19 @@ router.post(
       password: hashePassword,
       tokens: [{ token, date: new Date().toLocaleString() }],
     });
+    console.log(resultAddUser);
+    if (resultAddUser == true) {
+      // Send the token.
+      return res.json({
+        token,
+      });
+    } else {
+      return res.status(400).json({
+        errors: {
+          msg: "erorr in the DB",
+        },
+      });
+    }
 
     // Send the token.
     res.json({
