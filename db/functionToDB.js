@@ -2,6 +2,7 @@ import users from "./dbToTest.js";
 
 export function addToDB(objectUser) {
   users.push(objectUser);
+  console.log(users);
   return true;
 }
 

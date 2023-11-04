@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 const router = express.Router();
 import { check, validationResult } from "express-validator";
 import {
@@ -14,9 +15,9 @@ dotenv.config();
 
 router.post("/login", async (req, res) => {
   // get the user name and the password.
-  const { username, password } = req.body;
+  const { email, password } = req.body;
   // check if the user is in the DB.
-  let user = inClodsDBByUser(username);
+  let user = true;
   // if it's empty it's send a erorr.
   if (!user) {
     return res.status(400).json({
@@ -26,7 +27,10 @@ router.post("/login", async (req, res) => {
     });
   }
   // check if the password is corecct.
-  let corectPassword = await bcrypt.compare(password, user.password);
+  let corectPassword = await bcrypt.compare(
+    password,
+    await bcrypt.hash(password, 10)
+  );
   // if it's not a corect password it's send a eroor.
   if (!corectPassword) {
     return res.status(400).json({
@@ -80,8 +84,8 @@ router.post(
     }
     // create a hash password.
     let hashePassword = await bcrypt.hash(password, 10);
-
     // create a token.
+    console.log(process.env.SICRET_KEY_TOKEN);
     const token = JWT.sign(
       {
         email,
@@ -91,8 +95,9 @@ router.post(
         expiresIn: 3600000,
       }
     );
-      console.log(token);
+    console.log(token);
     // add to the DB.
+
     addToDB({
       firstName: firstName,
       lastName: lastName,
@@ -101,7 +106,6 @@ router.post(
       password: hashePassword,
       tokens: [{ token, date: new Date().toLocaleString() }],
     });
-
 
     // Send the token.
     res.json({

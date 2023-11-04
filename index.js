@@ -1,7 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-
+import cors from "cors";
 import connectDB from "./db/dbCoonect.js";
 import routerAuth from "./routers/routerAuth.js";
 import routerPrivet from "./routers/routerPrivet.js";
@@ -13,6 +13,8 @@ const port = process.env.PORT || 5050;
 
 const app = express();
 app.use(express.json());
+
+app.use(cors());
 
 // connect to the DB
 connectDB();
