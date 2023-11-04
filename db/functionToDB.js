@@ -11,6 +11,7 @@ export async function addToDB(objectUser) {
     console.error(error);
     return error;
   }
+
 }
 
 export async function allDB() {

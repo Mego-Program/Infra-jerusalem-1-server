@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 const router = express.Router();
 import { check, validationResult } from "express-validator";
 import { addToDB, allDB, getOneUser } from "../db/functionToDB.js";
@@ -10,9 +11,10 @@ dotenv.config();
 
 router.post("/login", async (req, res) => {
   // get the user name and the password.
-  const { username, password } = req.body;
+  const { email, password } = req.body;
   // check if the user is in the DB.
   let user = await getOneUser({ username: username });
+
   // if it's empty it's send a erorr.
   if (!user) {
     return res.status(400).json({
@@ -22,7 +24,10 @@ router.post("/login", async (req, res) => {
     });
   }
   // check if the password is corecct.
-  let corectPassword = await bcrypt.compare(password, user.password);
+  let corectPassword = await bcrypt.compare(
+    password,
+    await bcrypt.hash(password, 10)
+  );
   // if it's not a corect password it's send a eroor.
   if (!corectPassword) {
     return res.status(400).json({
@@ -77,8 +82,8 @@ router.post(
     }
     // create a hash password.
     let hashePassword = await bcrypt.hash(password, 10);
-
     // create a token.
+    console.log(process.env.SICRET_KEY_TOKEN);
     const token = JWT.sign(
       {
         email,
@@ -90,6 +95,7 @@ router.post(
     );
     // add to the DB.
     const resultAddUser = await addToDB({
+
       firstName: firstName,
       lastName: lastName,
       email: email,
@@ -110,6 +116,11 @@ router.post(
         },
       });
     }
+
+    // Send the token.
+    res.json({
+      token,
+    });
   }
 );
 
