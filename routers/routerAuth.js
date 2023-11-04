@@ -13,7 +13,7 @@ router.post("/login", async (req, res) => {
   // get the user name and the password.
   const { email, password } = req.body;
   // check if the user is in the DB.
-  let user = await getOneUser({ username: username });
+  let user = await getOneUser({ email: email });
 
   // if it's empty it's send a erorr.
   if (!user) {
@@ -26,7 +26,7 @@ router.post("/login", async (req, res) => {
   // check if the password is corecct.
   let corectPassword = await bcrypt.compare(
     password,
-    await bcrypt.hash(password, 10)
+    await bcrypt.hash(user.password, 10)
   );
   // if it's not a corect password it's send a eroor.
   if (!corectPassword) {
@@ -83,7 +83,6 @@ router.post(
     // create a hash password.
     let hashePassword = await bcrypt.hash(password, 10);
     // create a token.
-    console.log(process.env.SICRET_KEY_TOKEN);
     const token = JWT.sign(
       {
         email,
