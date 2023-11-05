@@ -24,8 +24,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  tokens: [{
-    token: {
+  verifyEmail:{
+    type: String,
+  },
+  token: {
+    value: {
       type: String,
       required: true
     },
@@ -33,7 +36,7 @@ const userSchema = new mongoose.Schema({
       type: String,
       default: new Date().toLocaleString()
     }
-  }]
+  }
 });
 
 const User = mongoose.model('User', userSchema);
