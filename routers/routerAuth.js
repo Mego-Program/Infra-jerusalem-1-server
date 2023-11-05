@@ -9,6 +9,22 @@ import JWT from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
+router.post("/verifyEmail", async (req, res) => {
+  const { email, code } = req.body;
+  console.log(email,code);
+  const user = await getOneUser({ email: email, verifyEmail: code });
+  if (!user) {
+    return res.status(400).json({
+      errors: {
+        msg: "code error",
+      },
+    });
+  } else {
+    //send the token.
+    return res.status(200).json({ token: user.token.value });
+  }
+});
+
 router.post("/login", async (req, res) => {
   // get the user name and the password.
   const { email, password } = req.body;
@@ -94,19 +110,19 @@ router.post(
     );
     // add to the DB.
     const resultAddUser = await addToDB({
-
       firstName: firstName,
       lastName: lastName,
       email: email,
       username: username,
       password: hashePassword,
-      tokens: [{ token, date: new Date().toLocaleString() }],
+      verifyEmail: Math.floor(Math.random() * 90000) + 10000,
+      token: { value: token, date: new Date().toLocaleString() },
     });
     console.log(resultAddUser);
     if (resultAddUser == true) {
       // Send the token.
-      return res.json({
-        token,
+      return res.status(200).json({
+        msg: true,
       });
     } else {
       return res.status(400).json({
@@ -115,11 +131,6 @@ router.post(
         },
       });
     }
-
-    // Send the token.
-    res.json({
-      token,
-    });
   }
 );
 

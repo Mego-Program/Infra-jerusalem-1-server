@@ -1,5 +1,6 @@
 import JWT from "jsonwebtoken";
 import dotenv from "dotenv";
+import { getOneUser } from "../db/functionToDB.js";
 dotenv.config();
 
 export default async (req, res, next) => {
@@ -15,7 +16,7 @@ export default async (req, res, next) => {
   }
   // check if the token is validity.
   try {
-    let user = await JWT.verify(token, process.env.SICRET_KEY_TOKEN);
+    let user = await getOneUser({ "token.value": token });
     // It's move to the next function.
     next();
   } catch (error) {
