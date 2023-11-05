@@ -5,6 +5,7 @@ import cors from "cors";
 import connectDB from "./db/dbCoonect.js";
 import routerAuth from "./routers/routerAuth.js";
 import routerPrivet from "./routers/routerPrivet.js";
+import sendEmail from "./middleware/sendEmailToTheClient.js";
 
 // connect fron the env file.
 dotenv.config();
