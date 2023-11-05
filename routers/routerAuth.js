@@ -7,11 +7,13 @@ import bcrypt from "bcrypt";
 import JWT from "jsonwebtoken";
 // to use the env file.
 import dotenv from "dotenv";
+import sendEmail from "../middleware/sendEmailToTheClient.js";
 dotenv.config();
 
+// send a email to the client to verify the email.
 router.post("/verifyEmail", async (req, res) => {
   const { email, code } = req.body;
-  console.log(email,code);
+  // get the user from the DB.
   const user = await getOneUser({ email: email, verifyEmail: code });
   if (!user) {
     return res.status(400).json({
@@ -108,6 +110,8 @@ router.post(
         expiresIn: 3600000,
       }
     );
+    // creat a rundom code of 5 numbers.
+    const verifyCode = Math.floor(Math.random() * 90000) + 10000;
     // add to the DB.
     const resultAddUser = await addToDB({
       firstName: firstName,
@@ -115,12 +119,13 @@ router.post(
       email: email,
       username: username,
       password: hashePassword,
-      verifyEmail: Math.floor(Math.random() * 90000) + 10000,
+      verifyEmail: verifyCode,
       token: { value: token, date: new Date().toLocaleString() },
     });
-    console.log(resultAddUser);
-    if (resultAddUser == true) {
-      // Send the token.
+    // send the email to the user.
+    const reqEmail = await sendEmail(email, verifyCode)
+    if (resultAddUser == true && reqEmail == true) {
+      // Send the ok the send a email.
       return res.status(200).json({
         msg: true,
       });
