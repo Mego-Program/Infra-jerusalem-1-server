@@ -14,7 +14,7 @@ dotenv.config();
 router.post("/verifyEmail", async (req, res) => {
   const { email, code } = req.body;
   // get the user from the DB.
-  const user = await getOneUser({ email: email, verifyEmail: code });
+  const user = await getOneUser({ email: email, "verifyEmail.value": code });
   if (!user) {
     return res.status(400).json({
       errors: {
@@ -119,8 +119,8 @@ router.post(
       email: email,
       username: username,
       password: hashePassword,
-      verifyEmail: verifyCode,
-      token: { value: token, date: new Date().toLocaleString() },
+      "verifyEmail.value": verifyCode,
+      token: { value: token, date: new Date()},
     });
     // send the email to the user.
     const reqEmail = await sendEmail(email, verifyCode);

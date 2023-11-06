@@ -28,7 +28,17 @@ export async function getOneUser(objectUser) {
   try {
     return await User.findOne(objectUser);
   } catch (error) {
-    return undefined
+    return undefined;
   }
 }
 
+export async function updeteOneUser(email, objectUpdate) {
+  try {
+    console.log(await User.findOne({email:email}));
+    const resDB = await User.updateOne({ email: email }, { $set: objectUpdate });
+    console.log(resDB);
+    return true
+  } catch (error) {
+    return false
+  }
+}
