@@ -3,9 +3,11 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./db/dbCoonect.js";
+
+// impurt the routers.
 import routerAuth from "./routers/routerAuth.js";
 import routerPrivet from "./routers/routerPrivet.js";
-import sendEmail from "./middleware/sendEmailToTheClient.js";
+import routerForgetPassword from "./routers/routerForgetPassword.js";
 
 // connect fron the env file.
 dotenv.config();
@@ -22,6 +24,7 @@ connectDB();
 // send to the router.
 app.use("/users", routerAuth);
 app.use("/privet", routerPrivet);
+app.use("/forgetPassword", routerForgetPassword);
 
 // chack if the DB is connect.
 mongoose.connection.once("open", () => {

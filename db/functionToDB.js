@@ -25,6 +25,10 @@ export async function allDB() {
 }
 
 export async function getOneUser(objectUser) {
-  return await User.findOne(objectUser);
+  try {
+    return await User.findOne(objectUser);
+  } catch (error) {
+    return undefined
+  }
 }
 
