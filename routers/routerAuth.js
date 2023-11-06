@@ -29,7 +29,7 @@ router.post("/verifyEmail", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   // get the user name and the password.
-  const { email, password } = req.body;
+  const { email, password } = req.body.sendData;
   // check if the user is in the DB.
   let user = await getOneUser({ email: email });
 
@@ -44,7 +44,7 @@ router.post("/login", async (req, res) => {
   // check if the password is corecct.
   let corectPassword = await bcrypt.compare(
     password,
-    await bcrypt.hash(user.password, 10)
+    user.password
   );
   // if it's not a corect password it's send a eroor.
   if (!corectPassword) {
@@ -123,7 +123,7 @@ router.post(
       token: { value: token, date: new Date().toLocaleString() },
     });
     // send the email to the user.
-    const reqEmail = await sendEmail(email, verifyCode)
+    const reqEmail = await sendEmail(email, verifyCode);
     if (resultAddUser == true && reqEmail == true) {
       // Send the ok the send a email.
       return res.status(200).json({
