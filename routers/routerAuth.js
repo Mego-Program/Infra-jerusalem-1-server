@@ -21,16 +21,6 @@ router.post("/verifyEmail", async (req, res) => {
   const { email, code } = req.body;
   // get the user from the DB.
   const user = await getOneUser({ email: email, "verifyEmail.value": code });
-  const diffTime = calculateDateDifference(
-    new Date(user.verifyEmail.date),
-    new Date()
-  );
-  console.log(diffTime);
-  if (diffTime.hours != 0 || diffTime.minutes > 1) {
-    return res.status(400).json({
-      mag: "time of the code is over",
-    });
-  }
   if (!user) {
     return res.status(400).json({
       errors: {
@@ -38,9 +28,19 @@ router.post("/verifyEmail", async (req, res) => {
       },
     });
   } else {
+    const diffTime = calculateDateDifference(
+      new Date(user.verifyEmail.date),
+      new Date()
+    );
+    if (diffTime.hours != 0 || diffTime.minutes > 1) {
+      return res.status(400).json({
+        mag: "time of the code is over",
+      });
+    }
+
     try {
       const reqSaveDB = await updeteOneUser(email, {
-        verifyEmail: { verify: true },
+        "verifyEmail.verify": true,
       });
       if (!reqSaveDB) {
         return res.status(400).json({
@@ -138,7 +138,6 @@ router.post(
     const { firstName, lastName, email, username, password } = req.body;
     //check if there is a user like this.
     const userExists = await getOneUser({ email: email });
-    console.log(userExists);
     // if there is a user like this send erorr.
     if (!userExists) {
       // add to the DB.
@@ -147,7 +146,7 @@ router.post(
         lastName: lastName,
         email: email,
         username: username,
-        password: "",
+        password: " ",
       });
       if (!resultAddUser) {
         return res.status(400).json({
@@ -164,7 +163,7 @@ router.post(
     // add to the DB.
     const resultUpdateUser = await updeteOneUser(email, {
       password: hashePassword,
-      verifyEmail: { value: verifyCode, date: new Date() },
+      verifyEmail: { value: verifyCode, date: new Date(), verify: false },
     });
     // send the email to the user.
     const reqEmail = await sendEmail(email, verifyCode);
@@ -183,24 +182,20 @@ router.post(
   }
 );
 
-router.post('/username', async (req, res) => {
+router.post("/username", async (req, res) => {
   // get the userName.
   const userName = req.body.Name;
   // check if the username is in the DB.
   try {
     let user = await getOneUser({ username: userName });
-    console.log(user);
-    if(!user){
-      return res.status(200).json({msg: "Not exist"})
-    }
-    else{
-      return res.status(400).json({msg: "exist"})
+    if (!user) {
+      return res.status(200).json({ msg: "Not exist" });
+    } else {
+      return res.status(400).json({ msg: "exist" });
     }
   } catch (error) {
-    return res.status(200).json({msg: "Not exist"})
+    return res.status(200).json({ msg: "Not exist" });
   }
-
-
-})
+});
 
 export default router;
