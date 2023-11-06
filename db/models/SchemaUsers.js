@@ -25,7 +25,13 @@ const userSchema = new mongoose.Schema({
     required: true
   },
   verifyEmail:{
-    type: String,
+    value: {
+      type: String,
+    },
+    date: {
+      type: String,
+      default: new Date()
+    }
   },
   token: {
     value: {
@@ -34,7 +40,7 @@ const userSchema = new mongoose.Schema({
     },
     date: {
       type: String,
-      default: new Date().toLocaleString()
+      default: new Date()
     }
   }
 });

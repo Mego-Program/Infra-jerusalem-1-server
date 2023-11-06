@@ -1,7 +1,8 @@
 import { Router } from "express";
 import sendEmail from "../middleware/sendEmailToTheClient.js";
-import { getOneUser } from "../db/functionToDB.js";
-import JWT from "jsonwebtoken";
+import { getOneUser, updeteOneUser } from "../db/functionToDB.js";
+import calculateDateDifference from "../functins/calculateDateDifference.js";
+import bcrypt from 'bcrypt'
 
 const router = Router();
 
@@ -20,15 +21,23 @@ router.post("/email", async (req, res) => {
   try {
     //creat a rundom code.
     const verifyCode = Math.floor(Math.random() * 90000) + 10000;
-    user.code = verifyCode;
-    // save the changes.
-    user.save();
     // send a email to the cloent.
     const reqEmail = await sendEmail(email, verifyCode);
     // if the is not send a email send error.
     if (!reqEmail) {
       return res.status(400).json({
         mag: "error send email",
+      });
+    }
+    // save the changes.
+    const resSave = await updeteOneUser(email, {
+      "verifyEmail.value": verifyCode,
+      "verifyEmail.date": new Date(),
+    });
+    console.log(resSave);
+    if (!resSave) {
+      return res.status(400).json({
+        mag: "error in DB",
       });
     }
     // send is good.
@@ -48,22 +57,33 @@ router.post("/code", async (req, res) => {
   // get the code and the email
   const { email, code } = req.body;
   // check if the code is corect.
-  const user = await getOneUser({ email: email, code: code });
+  const user = await getOneUser({ email: email, "verifyEmail.value": code});
   // if is not foud send error.
   if (!user) {
     return res.status(400).json({
       mag: "not a corect code",
     });
   }
+  const diffTime = calculateDateDifference(new Date(user.verifyEmail.date) , new Date())
+  console.log(diffTime);
+  if (diffTime.hours != 0 || diffTime.minutes > 2){
+    return res.status(400).json({
+      mag: "time of the code is over",
+    });
+  }
   try {
     // creat a code.
     const verifyCodeClient = Math.floor(Math.random() * 90000) + 10000;
-    user.code = verifyCodeClient;
-    // save the changes.
-    user.save();
-    // Send OK to the client.
+    // update the code of the user
+    const saveUser = await updeteOneUser(email, {"verifyEmail.value" : verifyCodeClient,"verifyEmail.date":new Date()})
+    if (!saveUser) {
+      return res.status(400).json({
+        mag: "error in DB",
+      });
+    }
+    // Send OK to the client with the code.
     return res.status(200).json({
-      mag: "the email sended",
+      code: verifyCodeClient,
     });
   } catch (error) {
     return res.status(400).json({
@@ -72,35 +92,38 @@ router.post("/code", async (req, res) => {
   }
 });
 
-router.post("/changgPassword", async (req, res) => {
-    // Get the email, password, code.
+router.post("/changePassword", async (req, res) => {
+  // Get the email, password, code.
   const { email, password, code } = req.body;
   // check if the code is corect.
-  const user = await getOneUser({ email: email, code: code });
+  const user = await getOneUser({ email: email, "verifyEmail.value": code });
   // If is not find a user send a error
   if (!user) {
     return res.status(400).json({
       mag: "user is not found",
     });
   }
-
+  const diffTime = calculateDateDifference(new Date(user.verifyEmail.date) , new Date())
+  console.log(diffTime);
+  if (diffTime.hours != 0 || diffTime.minutes > 10){
+    return res.status(400).json({
+      mag: "time of the code is over",
+    });
+  }
   try {
-    // create a token
-    const token = JWT.sign({ email }, process.env.SICRET_KEY_TOKEN, {
-      expiresIn: 3600000,
-    });
     // update the DB.
-    user.token.value = token;
-    user.token.date = new Date.toLocaleString();
-    user.password = password;
-    // save th changes.
-    user.save();
+    const saveDB = await updeteOneUser(email,{password : await bcrypt.hash(password, 10)})
+    if (!saveDB) {
+      return res.status(400).json({
+        mag: "error in DB",
+      });
+    }
+
     return res.status(200).json({
-      token: token,
+      msg: "the password is changed",
     });
-  } 
-  // send the error.
-  catch (error) {
+  } catch (error) {
+    // send the error.
     return res.status(400).json({
       mag: error,
     });
