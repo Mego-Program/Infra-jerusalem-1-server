@@ -1,8 +1,13 @@
 import express from "express";
-import cors from "cors";
+
 const router = express.Router();
 import { check, validationResult } from "express-validator";
-import { addToDB, allDB, getOneUser } from "../db/functionToDB.js";
+import {
+  addToDB,
+  allDB,
+  getOneUser,
+  updeteOneUser,
+} from "../db/functionToDB.js";
 import bcrypt from "bcrypt";
 import JWT from "jsonwebtoken";
 // to use the env file.
@@ -15,6 +20,16 @@ router.post("/verifyEmail", async (req, res) => {
   const { email, code } = req.body;
   // get the user from the DB.
   const user = await getOneUser({ email: email, "verifyEmail.value": code });
+  const diffTime = calculateDateDifference(
+    new Date(user.verifyEmail.date),
+    new Date()
+  );
+  console.log(diffTime);
+  if (diffTime.hours != 0 || diffTime.minutes > 1) {
+    return res.status(400).json({
+      mag: "time of the code is over",
+    });
+  }
   if (!user) {
     return res.status(400).json({
       errors: {
@@ -22,8 +37,22 @@ router.post("/verifyEmail", async (req, res) => {
       },
     });
   } else {
-    //send the token.
-    return res.status(200).json({ token: user.token.value });
+    try {
+      const reqSaveDB = await updeteOneUser(email, {
+        verifyEmail: { verify: true },
+      });
+      if (!reqSaveDB) {
+        return res.status(400).json({
+          mag: "error in DB",
+        });
+      }
+    } catch (error) {
+      return res.status(400).json({
+        mag: "error in DB",
+      });
+    }
+    //send the OK.
+    return res.status(200).json({ msg: "email verify" });
   }
 });
 
@@ -41,11 +70,15 @@ router.post("/login", async (req, res) => {
       },
     });
   }
+  if (!user.verifyEmail.verify) {
+    return res.status(400).json({
+      errors: {
+        msg: "the email is not varify",
+      },
+    });
+  }
   // check if the password is corecct.
-  let corectPassword = await bcrypt.compare(
-    password,
-    user.password
-  );
+  let corectPassword = await bcrypt.compare(password, user.password);
   // if it's not a corect password it's send a eroor.
   if (!corectPassword) {
     return res.status(400).json({
@@ -64,6 +97,21 @@ router.post("/login", async (req, res) => {
       expiresIn: 3600000,
     }
   );
+  try {
+    const reqSaveDB = await updeteOneUser(email, {
+      "token.value": token,
+      "token.date": new Date(),
+    });
+    if (!reqSaveDB) {
+      return res.status(400).json({
+        mag: "error in DB",
+      });
+    }
+  } catch (error) {
+    return res.status(400).json({
+      mag: "error in DB",
+    });
+  }
   // send the token.
   res.json({
     token,
@@ -91,40 +139,35 @@ router.post(
     const userExists = await getOneUser({ email: email });
     console.log(userExists);
     // if there is a user like this send erorr.
-    if (userExists) {
-      return res.status(400).json({
-        errors: {
-          msg: "This user is already exists",
-        },
+    if (!userExists) {
+      // add to the DB.
+      const resultAddUser = await addToDB({
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        username: username,
+        password: "",
       });
+      if (!resultAddUser) {
+        return res.status(400).json({
+          errors: {
+            msg: "erorr in the DB",
+          },
+        });
+      }
     }
     // create a hash password.
     let hashePassword = await bcrypt.hash(password, 10);
-    // create a token.
-    const token = JWT.sign(
-      {
-        email,
-      },
-      process.env.SICRET_KEY_TOKEN,
-      {
-        expiresIn: 3600000,
-      }
-    );
     // creat a rundom code of 5 numbers.
     const verifyCode = Math.floor(Math.random() * 90000) + 10000;
     // add to the DB.
-    const resultAddUser = await addToDB({
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
-      username: username,
+    const resultUpdateUser = await updeteOneUser(email, {
       password: hashePassword,
-      "verifyEmail.value": verifyCode,
-      token: { value: token, date: new Date()},
+      verifyEmail: { value: verifyCode, date: new Date() },
     });
     // send the email to the user.
     const reqEmail = await sendEmail(email, verifyCode);
-    if (resultAddUser == true && reqEmail == true) {
+    if (resultUpdateUser == true && reqEmail == true) {
       // Send the ok the send a email.
       return res.status(200).json({
         msg: true,
