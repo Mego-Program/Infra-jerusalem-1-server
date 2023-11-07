@@ -32,7 +32,7 @@ router.post("/verifyEmail", async (req, res) => {
       new Date(user.verifyEmail.date),
       new Date()
     );
-    if (diffTime.hours != 0 || diffTime.minutes > 1) {
+    if (diffTime.hours != 0 || diffTime.minutes > 2) {
       return res.status(400).json({
         mag: "time of the code is over",
       });
@@ -88,9 +88,13 @@ router.post("/login", async (req, res) => {
       },
     });
   }
-  if (user.token.value != ""){
+  const diffTime = calculateDateDifference(
+    new Date(user.verifyEmail.date),
+    new Date()
+  );
+  if (user.token.value != "" && diffTime.hours < 720) {
     res.json({
-      token:user.token.value,
+      token: user.token.value,
     });
   }
   // creat a token with the email inside.
@@ -143,24 +147,37 @@ router.post(
     const { firstName, lastName, email, username, password } = req.body;
     //check if there is a user like this.
     const userExists = await getOneUser({ email: email });
-    // if there is a user like this send erorr.
-    if (!userExists) {
-      // add to the DB.
-      const resultAddUser = await addToDB({
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        username: username,
-        password: " ",
+    if (userExists && userExists.verifyEmail.verify == false) {
+      return res.status(400).json({
+        errors: {
+          msg: "the email is not verify",
+        },
       });
-      if (!resultAddUser) {
-        return res.status(400).json({
-          errors: {
-            msg: "erorr in the DB",
-          },
-        });
-      }
     }
+    // if there is a user like this send erorr.
+    if (userExists && userExists.verifyEmail.verify == true) {
+      return res.status(400).json({
+        errors: {
+          msg: "one of the information is error",
+        },
+      });
+    }
+    // add to the DB.
+    const resultAddUser = await addToDB({
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      username: username,
+      password: " ",
+    });
+    if (!resultAddUser) {
+      return res.status(400).json({
+        errors: {
+          msg: "erorr in the DB",
+        },
+      });
+    }
+
     // create a hash password.
     let hashePassword = await bcrypt.hash(password, 10);
     // creat a rundom code of 5 numbers.
