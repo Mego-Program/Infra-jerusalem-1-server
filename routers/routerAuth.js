@@ -88,6 +88,11 @@ router.post("/login", async (req, res) => {
       },
     });
   }
+  if (user.token.value != ""){
+    res.json({
+      token:user.token.value,
+    });
+  }
   // creat a token with the email inside.
   const token = JWT.sign(
     {
