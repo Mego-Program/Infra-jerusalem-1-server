@@ -24,7 +24,7 @@ export default function generateStrongPassword() {
       const j = Math.floor(Math.random() * (i + 1));
       [password[i], password[j]] = [password[j], password[i]];
     }
-  
+    
     return password.join('');
   }
   
