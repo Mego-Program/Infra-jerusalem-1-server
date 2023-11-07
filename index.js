@@ -9,6 +9,7 @@ import routerAuth from "./routers/routerAuth.js";
 import routerPrivet from "./routers/routerPrivet.js";
 import routerForgetPassword from "./routers/routerForgetPassword.js";
 
+
 // connect fron the env file.
 dotenv.config();
 // get the port from the env or is 5050
