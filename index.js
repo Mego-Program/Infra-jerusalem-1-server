@@ -20,6 +20,7 @@ app.use(express.json());
 
 app.use(cors());
 
+
 // connect to the DB
 connectDB();
 // send to the router.
