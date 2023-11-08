@@ -62,7 +62,6 @@ router.post("/login", async (req, res) => {
   const { email, password } = req.body.sendData;
   // check if the user is in the DB.
   let user = await getOneUser({ email: email });
-
   // if it's empty it's send a erorr.
   if (!user) {
     return res.status(400).json({
@@ -79,6 +78,7 @@ router.post("/login", async (req, res) => {
     });
   }
   // check if the password is corecct.
+
   let corectPassword = await bcrypt.compare(password, user.password);
   // if it's not a corect password it's send a eroor.
   if (!corectPassword) {
@@ -88,12 +88,14 @@ router.post("/login", async (req, res) => {
       },
     });
   }
+
   const diffTime = calculateDateDifference(
     new Date(user.verifyEmail.date),
     new Date()
   );
   if (user.token.value != "" && diffTime.hours < 720) {
-    res.json({
+    console.log(user.token.value);
+    return res.json({
       token: user.token.value,
     });
   }
@@ -217,6 +219,22 @@ router.post("/username", async (req, res) => {
     }
   } catch (error) {
     return res.status(200).json({ msg: "Not exist" });
+  }
+});
+
+
+router.post("/token", async (req, res) => {
+  try {
+
+    const { token } = req.body;
+    let user = await getOneUser({ "token.value": token });
+    if (user) {
+      return res.status(200).json({ msg: "Token is good" });
+    } else {
+      return res.status(400).json({ msg: "Token is not good" });
+    }
+  } catch (error) {
+    return res.status(400).json({ msg: "Token is not good" });
   }
 });
 
