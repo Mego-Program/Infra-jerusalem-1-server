@@ -18,6 +18,13 @@ export default async (req, res, next) => {
   try {
     let user = await getOneUser({ "token.value": token });
     // It's move to the next function.
+    if (!user) {
+      return res.status(400).json({
+        errors: {
+          msg: "Token invalud error",
+        },
+      });
+    }
     next();
   } catch (error) {
     // else sent a erorr.
