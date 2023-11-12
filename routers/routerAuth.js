@@ -57,6 +57,41 @@ router.post("/verifyEmail", async (req, res) => {
   }
 });
 
+router.post("/email", async (req,res) => {
+  const { email } = req.body.sendData;
+  // check if the user is in the DB.
+  let user = await getOneUser({ email: email });
+  // if it's empty it's send a erorr.
+  if (!user) {
+    return res.status(400).json({
+      errors: {
+        msg: "Invalid Credentials",
+      },
+    });
+  }
+  // creat a rundom code of 5 numbers.
+  const verifyCode = Math.floor(Math.random() * 90000) + 10000;
+  // add to the DB.
+  const resultUpdateUser = await updeteOneUser(email, {
+    verifyEmail: { value: verifyCode, date: new Date(), verify: false },
+  });
+  // send the email to the user.
+  const reqEmail = await sendEmail(email, verifyCode);
+  if (resultUpdateUser == true && reqEmail == true) {
+    // Send the ok the send a email.
+    return res.status(200).json({
+      msg: true,
+    });
+  } else {
+    return res.status(400).json({
+      errors: {
+        msg: "erorr in the DB",
+      },
+    });
+  }
+})
+
+
 router.post("/login", async (req, res) => {
   // get the user name and the password.
   const { email, password } = req.body.sendData;
