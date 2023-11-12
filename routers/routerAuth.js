@@ -71,11 +71,10 @@ router.post("/email", async (req, res) => {
     });
   }
   // creat a rundom code of 5 numbers.
+  let verifyCode = Math.floor(Math.random() * 90000) + 10000;
   if (type == "password") {
-    const verifyCode = randomPassword();
-  } else {
-    const verifyCode = Math.floor(Math.random() * 90000) + 10000;
-  }
+    verifyCode = randomPassword();
+  } 
   // add to the DB.
   const resultUpdateUser = await updeteOneUser(email, {
     verifyEmail: { value: verifyCode, date: new Date(), verify: false },
