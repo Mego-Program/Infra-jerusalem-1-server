@@ -1,5 +1,6 @@
 import express from "express";
 import calculateDateDifference from "../functins/calculateDateDifference.js";
+import randomPassword from "../functins/randomPassword.js";
 
 const router = express.Router();
 import { check, validationResult } from "express-validator";
@@ -57,8 +58,8 @@ router.post("/verifyEmail", async (req, res) => {
   }
 });
 
-router.post("/email", async (req,res) => {
-  const { email } = req.body.sendData;
+router.post("/email", async (req, res) => {
+  const { email, type } = req.body;
   // check if the user is in the DB.
   let user = await getOneUser({ email: email });
   // if it's empty it's send a erorr.
@@ -70,7 +71,11 @@ router.post("/email", async (req,res) => {
     });
   }
   // creat a rundom code of 5 numbers.
-  const verifyCode = Math.floor(Math.random() * 90000) + 10000;
+  if (type == "password") {
+    const verifyCode = randomPassword();
+  } else {
+    const verifyCode = Math.floor(Math.random() * 90000) + 10000;
+  }
   // add to the DB.
   const resultUpdateUser = await updeteOneUser(email, {
     verifyEmail: { value: verifyCode, date: new Date(), verify: false },
@@ -260,7 +265,6 @@ router.post("/username", async (req, res) => {
 
 router.post("/token", async (req, res) => {
   try {
-
     const { token } = req.body;
     let user = await getOneUser({ "token.value": token });
     if (user) {
