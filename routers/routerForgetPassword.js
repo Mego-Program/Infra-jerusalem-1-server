@@ -79,9 +79,12 @@ router.post("/password", async (req, res) => {
     });
   }
   try {
+    let hashePassword = await bcrypt.hash(password, 10);
+
     // update the DB.
+
     const saveDB = await updeteOneUser(email, {
-      password: await bcrypt.hash(password, 10),
+      password: hashePassword,
     });
     if (!saveDB) {
       return res.status(400).json({
