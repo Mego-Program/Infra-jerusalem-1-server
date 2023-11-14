@@ -82,6 +82,7 @@ router.post("/password", async (req, res) => {
     // update the DB.
     const saveDB = await updeteOneUser(email, {
       password: await bcrypt.hash(password, 10),
+      "verifyEmail.verify": true,
     });
     if (!saveDB) {
       return res.status(400).json({
