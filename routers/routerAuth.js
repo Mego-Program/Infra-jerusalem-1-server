@@ -60,10 +60,10 @@ router.post("/verifyEmail", async (req, res) => {
 
 router.post("/email", async (req, res) => {
   const { email, type } = req.body;
-    // check if the user is in the DB.
+  // check if the user is in the DB.
   let user = await getOneUser({ email: email });
   // if it's empty it's send a erorr.
-    if (!user) {
+  if (!user) {
     return res.status(400).json({
       errors: {
         msg: "Invalid Credentials",
@@ -74,7 +74,7 @@ router.post("/email", async (req, res) => {
   let verifyCode = Math.floor(Math.random() * 90000) + 10000;
   if (type == "password") {
     verifyCode = randomPassword();
-  } 
+  }
   // add to the DB.
   const resultUpdateUser = await updeteOneUser(email, {
     verifyEmail: { value: verifyCode, date: new Date(), verify: false },
@@ -93,13 +93,12 @@ router.post("/email", async (req, res) => {
       },
     });
   }
-})
-
+});
 
 router.post("/login", async (req, res) => {
   // get the user name and the password.
   const { email, password } = req.body.sendData;
-    // check if the user is in the DB.
+  // check if the user is in the DB.
   let user = await getOneUser({ email: email });
   // if it's empty it's send a erorr.
   if (!user) {
@@ -132,10 +131,19 @@ router.post("/login", async (req, res) => {
     new Date(user.verifyEmail.date),
     new Date()
   );
+  const sendInformtionUser = {
+    id: user._id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    username: user.username,
+  };
+
+  console.log(user);
   if (user.token.value != "" && diffTime.hours < 720) {
-    console.log(user.token.value);
-    return res.json({
+    return res.status(200).json({
       token: user.token.value,
+      user: sendInformtionUser,
     });
   }
   // creat a token with the email inside.
@@ -164,8 +172,9 @@ router.post("/login", async (req, res) => {
     });
   }
   // send the token.
-  res.json({
-    token,
+  res.status(200).json({
+    token: token,
+    user: sendInformtionUser,
   });
 });
 router.post(
@@ -260,7 +269,6 @@ router.post("/username", async (req, res) => {
     return res.status(200).json({ msg: "Not exist" });
   }
 });
-
 
 router.post("/token", async (req, res) => {
   try {
