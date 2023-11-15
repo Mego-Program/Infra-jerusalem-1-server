@@ -85,6 +85,7 @@ router.post("/password", async (req, res) => {
 
     const saveDB = await updeteOneUser(email, {
       password: hashePassword,
+      "verifyEmail.verify": true,
     });
     if (!saveDB) {
       return res.status(400).json({
