@@ -1,4 +1,5 @@
 import express from "express";
+import { getRowsfromAllUsers } from "../db/functionToDB.js";
 const router = express.Router();
 import { check } from "express-validator";
 
@@ -27,5 +28,9 @@ router.post(
 );
 router.post("/username", usernameFunction);
 router.post("/token", tokenFunction);
+router.get('/', async (req, res) => {
+  const response = await getRowsfromAllUsers("email, userName, profile")
+  res.json(response)
+})
 
 export default router;
