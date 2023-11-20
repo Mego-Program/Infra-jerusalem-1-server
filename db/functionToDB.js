@@ -40,3 +40,12 @@ export async function updeteOneUser(email, objectUpdate) {
     return false
   }
 }
+
+export async function getRowsfromAllUsers(stringRows){
+  try {
+    const resDB = await User.find({}, stringRows)
+    return resDB
+  } catch (error) {
+    return error
+  }
+}
