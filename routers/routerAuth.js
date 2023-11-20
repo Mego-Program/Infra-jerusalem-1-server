@@ -29,7 +29,7 @@ router.post(
 router.post("/username", usernameFunction);
 router.post("/token", tokenFunction);
 router.get('/', async (req, res) => {
-  const response = await getRowsfromAllUsers("email, userName, profile")
+  const response = await getRowsfromAllUsers("email, userName, image")
   res.json(response)
 })
 
