@@ -4,10 +4,11 @@ import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./db/dbCoonect.js";
 
-// impurt the routers.
+// import the routers.
 import routerAuth from "./routers/routerAuth.js";
 import routerPrivet from "./routers/routerPrivet.js";
 import routerForgetPassword from "./routers/routerForgetPassword.js";
+import router from "./routers/routerUsernameprofile.js";
 
 
 // connect fron the env file.
@@ -20,13 +21,13 @@ app.use(express.json());
 
 app.use(cors());
 
-
 // connect to the DB
 connectDB();
 // send to the router.
 app.use("/users", routerAuth);
 app.use("/privet", routerPrivet);
 app.use("/forgetPassword", routerForgetPassword);
+app.use("/db", router)
 
 // chack if the DB is connect.
 mongoose.connection.once("open", () => {
