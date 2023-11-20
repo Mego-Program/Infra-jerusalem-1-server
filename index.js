@@ -27,7 +27,6 @@ connectDB();
 app.use("/users", routerAuth);
 app.use("/privet", routerPrivet);
 app.use("/forgetPassword", routerForgetPassword);
-app.use("/db", router)
 
 // chack if the DB is connect.
 mongoose.connection.once("open", () => {
