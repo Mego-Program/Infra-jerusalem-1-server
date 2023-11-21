@@ -3,7 +3,6 @@ import { getOneUser, updeteOneUser } from "../../db/functionToDB.js";
 import bcrypt from "bcrypt";
 import JWT from "jsonwebtoken";
 
-
 const loginFunction = async (req, res) => {
   // get the user name and the password.
   const { email, password } = req.body.sendData;
@@ -46,6 +45,7 @@ const loginFunction = async (req, res) => {
     lastName: user.lastName,
     email: user.email,
     username: user.username,
+    image: user.image,
   };
 
   if (user.token.value != "" && diffTime.hours < 720) {

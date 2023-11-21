@@ -29,8 +29,9 @@ router.post(
 router.post("/username", usernameFunction);
 router.post("/token", tokenFunction);
 router.get('/', async (req, res) => {
-  const response = await getRowsfromAllUsers("email, userName, image")
+  const response = await getRowsfromAllUsers("email username image")
   res.json(response)
 })
+
 
 export default router;
