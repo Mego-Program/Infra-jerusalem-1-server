@@ -1,9 +1,7 @@
 import { getOneUser } from "../../db/functionToDB.js";
 
 const usernameFunction = async (req, res) => {
-  // get the userName.
   const userName = req.body.Name;
-  // check if the username is in the DB.
   try {
     let user = await getOneUser({ username: userName });
     if (!user) {

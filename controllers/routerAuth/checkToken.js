@@ -1,16 +1,26 @@
 import { getOneUser } from "../../db/functionToDB.js"; 
 
-const tokenFunction = async (req, res) => {
+async function checkIfGoodToken(token){
   try {
-    const { token } = req.body;
     let user = await getOneUser({ "token.value": token });
     if (user) {
-      return res.status(200).json({ msg: "Token is good" });
+      return true
     } else {
-      return res.status(400).json({ msg: "Token is not good" });
+      return false;
     }
   } catch (error) {
+    return false;
+  }
+}
+
+
+const tokenFunction = async (req, res) => {
+  const { token } = req.body;
+  if (checkIfGoodToken(token)){
+    return res.status(200).json({ msg: "Token is good" });
+  } else {
     return res.status(400).json({ msg: "Token is not good" });
+
   }
 };
 
