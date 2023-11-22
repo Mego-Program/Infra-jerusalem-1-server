@@ -14,6 +14,7 @@ const signupFunction = async (req, res) => {
       errors: errors.array(),
     });
   }
+  
   const { firstName, lastName, email, username, password } = req.body;
   
 
