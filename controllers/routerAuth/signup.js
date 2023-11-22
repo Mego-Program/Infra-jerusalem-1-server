@@ -5,6 +5,9 @@ import sendEmail from "../../middleware/sendEmailToTheClient.js";
 
 const signupFunction = async (req, res) => {
   // get the erorrs in the check middelwer.
+  const { firstName, lastName, email, username, password } = req.body;
+  const image = req.files[0]
+  console.log(image);
   const errors = validationResult(req);
   // If there is an erorr.
   if (!errors.isEmpty()) {
@@ -12,8 +15,7 @@ const signupFunction = async (req, res) => {
       errors: errors.array(),
     });
   }
-  // get the argomants.
-  const { firstName, lastName, email, username, password } = req.body;
+
   //check if there is a user like this.
   const userExists = await getOneUser({ email: email });
   if (userExists && userExists.verifyEmail.verify == false) {
