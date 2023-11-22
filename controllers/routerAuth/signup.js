@@ -2,12 +2,11 @@ import { validationResult } from "express-validator";
 import { addToDB, getOneUser, updeteOneUser } from "../../db/functionToDB.js";
 import bcrypt from "bcrypt";
 import sendEmail from "../../middleware/sendEmailToTheClient.js";
+import uploadImagecloudinary from '../../cloudinary/updateImage.js'
+
 
 const signupFunction = async (req, res) => {
   // get the erorrs in the check middelwer.
-  const { firstName, lastName, email, username, password } = req.body;
-  const image = req.files[0]
-  console.log(image);
   const errors = validationResult(req);
   // If there is an erorr.
   if (!errors.isEmpty()) {
@@ -15,6 +14,8 @@ const signupFunction = async (req, res) => {
       errors: errors.array(),
     });
   }
+  const { firstName, lastName, email, username, password } = req.body;
+  
 
   //check if there is a user like this.
   const userExists = await getOneUser({ email: email });
@@ -33,6 +34,8 @@ const signupFunction = async (req, res) => {
       },
     });
   }
+  const image = req.files[0]
+  const imageUrl = await uploadImagecloudinary(image)
   // add to the DB.
   const resultAddUser = await addToDB({
     firstName: firstName,
@@ -40,6 +43,7 @@ const signupFunction = async (req, res) => {
     email: email,
     username: username,
     password: " ",
+    image : imageUrl
   });
   if (!resultAddUser) {
     return res.status(400).json({
