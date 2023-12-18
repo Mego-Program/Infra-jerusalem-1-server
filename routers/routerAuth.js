@@ -1,5 +1,5 @@
 import express from "express";
-import { getRowsfromAllUsers } from "../db/functionToDB.js";
+import { allDB, getRowsfromAllUsers } from "../db/functionToDB.js";
 const router = express.Router();
 import { check } from "express-validator";
 
@@ -36,6 +36,7 @@ router.post(
 );
 router.post("/username", usernameFunction);
 router.post("/token", tokenFunction);
+router.post('/allUsers', allDB)
 router.get("/", async (req, res) => {
   const response = await getRowsfromAllUsers("email username image");
   res.json(response);
