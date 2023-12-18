@@ -13,10 +13,11 @@ export async function addToDB(objectUser) {
   }
 }
 
-export async function allDB() {
+export async function allDB(req, res) {
+
   try {
-    const allUsers = await User.find({});
-    console.log(allUsers);
+    const allUsers = await User.find({}, { username: 1, image: 1});
+    res.json(allUsers)
     return allUsers;
   } catch (error) {
     console.error(error);
