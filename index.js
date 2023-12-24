@@ -8,6 +8,7 @@ import connectDB from "./db/dbCoonect.js";
 import routerAuth from "./routers/routerAuth.js";
 import routerPrivet from "./routers/routerPrivet.js";
 import routerForgetPassword from "./routers/routerForgetPassword.js";
+import { allDB } from "./db/functionToDB.js";
 
 // connect fron the env file.
 dotenv.config();
@@ -22,6 +23,11 @@ app.use(cors());
 
 // connect to the DB
 connectDB();
+app.get('/allUsers', async (req, res) => {
+  const list = await allDB()
+  console.log(list);
+  res.send(list);
+});
 // send to the router.
 app.use("/users", routerAuth);
 app.use("/privet", routerPrivet);
