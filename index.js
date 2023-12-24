@@ -23,11 +23,11 @@ app.use(cors());
 
 // connect to the DB
 connectDB();
-app.get('/allUsers', async (req, res) => {
-  const list = await allDB()
-  console.log(list);
-  res.send(list);
-});
+// app.get('/allUsers', async (req, res) => {
+//   const list = await allDB()
+//   console.log(list);
+//   res.send(list);
+// });
 // send to the router.
 app.use("/users", routerAuth);
 app.use("/privet", routerPrivet);
