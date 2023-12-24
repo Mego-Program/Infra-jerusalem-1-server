@@ -12,7 +12,6 @@ import verifyEmailfunction from "../controllers/routerAuth/verifyEmailCode.js";
 import emailFanction from "../controllers/routerAuth/getPassOrCodeEmail.js";
 import signupFunction from "../controllers/routerAuth/signup.js";
 import usernameFunction from "../controllers/routerAuth/usernameUesd.js";
-import ChangeProfilePicture from "../controllers/routerAuth/ChangeProfilePicture.js";
 import tokenFunction from "../controllers/routerAuth/checkToken.js";
 import multer from "multer";
 import { fileURLToPath } from "node:url";
@@ -23,9 +22,6 @@ const upload = multer({ dest: __dirname + "/uploads" });
 
 
 router.post("/verifyEmail", verifyEmailfunction);
-router.post("/ChangeProfilePicture",
-upload.array('image'),
- ChangeProfilePicture);
 router.post("/email", emailFanction);
 router.post("/login", loginFunction);
 router.post(
