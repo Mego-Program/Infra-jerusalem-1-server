@@ -17,7 +17,7 @@ export async function allDB(req, res) {
 
   try {
     const allUsers = await User.find({}, { username: 1, image: 1});
-    res.json(allUsers)
+    // res.json(allUsers)
     return allUsers;
   } catch (error) {
     console.error(error);
