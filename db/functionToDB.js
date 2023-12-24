@@ -25,6 +25,7 @@ export async function allDB(req, res) {
   }
 }
 
+
 export async function getOneUser(objectUser) {
   try {
     return await User.findOne(objectUser);
