@@ -6,7 +6,7 @@ const ChangeProfilePicture = async (req, res) => {
     const email = req.body.email
     const image = req.files[0]
     const imageUrl = await uploadImagecloudinary(image)
-    
+
     try {
         const saveDB = await updeteOneUser(email, {
             image : imageUrl,
