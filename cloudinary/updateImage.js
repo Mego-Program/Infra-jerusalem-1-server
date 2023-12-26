@@ -23,7 +23,6 @@ async function uploadImagecloudinary(image) {
         resource_type: "image",
       }
     );
-    console.log("b");
     fs.unlink(image.path, (err) => {
         if (err) {
           console.error(`Error deleting file: ${err}`);
@@ -31,7 +30,6 @@ async function uploadImagecloudinary(image) {
           console.log('File deleted successfully');
         }
       });
-      console.log("c");
     return responseCloudinary.url;
   } catch (error) {
     console.log(error);
